@@ -20,14 +20,8 @@ const requestLogger =(req,res,next) =>{
   next()}
 app.use(requestLogger)
 
-if (process.argv.length<3){
-  console.log('give password as argument')
-  process.exit(1)
-}
-
 
 const Contact = require('./models/contact')
-
 
 let persons  = [
       {
