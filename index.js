@@ -35,32 +35,32 @@ let persons  = [
 const mainUrl = "/api"
 
 app.get(`${mainUrl}/persons`, (req, res) => {
-// console.log(`Let me have persons ${PORT}`)
-// res.json(persons)
   console.log('now searching for contacts')
   Contact.find({}).then(c => {
-    console.log(c)
+    console.log(c.length," records found")
     res.json(c)
   })
 })
 
-app.put(`${mainUrl}/persons/:id`, (req, res) => {
+app.put(`${mainUrl}/persons/:id`, (req, res, next) => {
   const id = String(req.params.id)
+  console.log(id, "pitäs päivittää")
   const body = req.body
   const c = {
     name: body.name,
     number: body.number,
     data: new Date(),
   }
-  
+   
   Contact.findByIdAndUpdate(id, c,{new: true})
     .then(updatedNote => {
       res.json(updatedNote)
+    })
     .catch(error => next(error))
-  })
+  
 })
 
-app.post(`${mainUrl}/persons`, (req, res) => {
+app.post(`${mainUrl}/persons`, (req, res, next) => {
   console.log(`Let's add new person ${req.params}}`)
   const body = req.body
   
@@ -76,7 +76,7 @@ app.post(`${mainUrl}/persons`, (req, res) => {
     })) 
   }
 
-  //console.log(persons.filter(s => s.name === body.name))
+  console.log("Name and number exists")
 
   if(persons.filter(s => s.name === body.name).length != 0){
     return ( res.status(400).json({
@@ -84,23 +84,26 @@ app.post(`${mainUrl}/persons`, (req, res) => {
     }))
   }
 
+  console.log("Same name does not exists")
+
   console.log("Adding new item")
 
   const newPerson  = new Contact({
     name: body.name,
     date: new Date(),
-    number: body.number,
+    number: body.number
   })
 
-  newPerson.save().then(savedNewOne => {
-    console.log('This saved:', savedNewOne)
-    res.json(savedNewOne)
-
-  })
+  newPerson.save()
+    .then(savedNewOne => {
+      console.log('This saved:', savedNewOne)
+      res.json(savedNewOne).end()
+      })
+    .catch(error => next(error))
 
 })
  
-app.get(`${mainUrl}/persons/:id`, (req, res) => {
+app.get(`${mainUrl}/persons/:id`, (req, res, next) => {
   const id = String(req.params.id)
   console.log(`Let me have person data ${id}`)
 
@@ -112,12 +115,12 @@ app.get(`${mainUrl}/persons/:id`, (req, res) => {
           console.log(error)
           res.status(400).send({error: "Nothing there"})
         }
-    })
+      })
     .catch(error => next(error))
     
  })
 
- app.delete(`${mainUrl}/persons/:id`, (req, res) => {
+ app.delete(`${mainUrl}/persons/:id`, (req, res, next) => {
   const id = String(req.params.id)
   console.log(`Let's remove contact ${id}`)
   const contact = persons.filter(n => n.id === id)
