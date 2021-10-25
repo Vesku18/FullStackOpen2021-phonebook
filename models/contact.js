@@ -17,6 +17,11 @@ const contactSchema = new mongoose.Schema({
     name: String,
     date: Date,
     number: String,
+    writeConcern: {
+        w: 'majority',
+        j:true,
+        wtimeout:1000
+    }
 })
 
 contactSchema.set('toJSON', {
