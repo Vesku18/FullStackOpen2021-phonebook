@@ -3,7 +3,6 @@ const mongoose = require('mongoose')
 
 const url = process.env.MONGODB_URI
 
-console.log("This is it:",password)
 //const url = 
 //`mongodb+srv://fullstack:${password}@cluster0.ghw53.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
 
