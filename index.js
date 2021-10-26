@@ -35,7 +35,6 @@ let persons  = [
 const mainUrl = "/api"
 
 app.get(`${mainUrl}/persons`, (req, res) => {
-  console.log('now searching for contacts')
   Contact.find({}).then(c => {
     console.log(c.length," records found")
     res.json(c)
@@ -49,14 +48,18 @@ app.put(`${mainUrl}/persons/:id`, (req, res, next) => {
   const c = {
     name: body.name,
     number: body.number,
-    data: new Date(),
+    data: new Date()
   }
    
   Contact.findByIdAndUpdate(id, c,{new: true})
     .then(updatedNote => {
+      console.log("Talletus onnistu", updatedNote)
       res.json(updatedNote)
     })
-    .catch(error => next(error))
+    .catch(error => {
+      console.log("Ei onnistutnut talletus", error)
+      next(error)
+    })
   
 })
 
@@ -99,7 +102,10 @@ app.post(`${mainUrl}/persons`, (req, res, next) => {
       console.log('This saved:', savedNewOne)
       res.json(savedNewOne).end()
       })
-    .catch(error => next(error))
+    .catch(error => {
+      console.log("Savesta tuli errori", error)
+      next(error)
+    })
 
 })
  
@@ -149,19 +155,21 @@ app.get('/api/info', (req,res) => {
 
 // ERROR HANDLING
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
+  response.status(404).send({ error: 'unknown endpoint'})
 }
-
 // olemattomien osoitteiden käsittely
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-
   if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
+    return response.status(400).send({ error: 'Väärä formaatti'})
   }
-
+  else if (error.name === 'ReferenceError') {
+    return response.status(500).send({ error: 'Oikea formaatti mutta väärä osoitus'})
+  }
+  else if (error.name === 'ValidationError') {    
+    return response.status(400).json({ error: error.message })  }
+  
   next(error)
 }
 
